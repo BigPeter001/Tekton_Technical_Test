@@ -1,5 +1,5 @@
-**Challenge para la empresa Tekton**
-Este challenge debe contener lo siguiente:
+<p>**Challenge para la empresa Tekton**</p>
+<p>Este challenge debe contener lo siguiente:
 1.1. Crear un rest API en .net Core (última versión).
 1.2. Documentar la API usando swagger.
 1.3. Usar patrones (ejemplo: mediator pattern, repository pattern, cqrs, etc).
@@ -13,7 +13,7 @@ descripción de los patrones o arquitectura usada en el proyecto. Además,
 poner los pasos para levantar el proyecto localmente.También, se puede
 agregar alguna información que se considere útil.
 1.9. Subir el proyecto a github de manera pública.
-
+</p>
 **Pasos para levantar el proyecto localmente**
 1. En el Package manager console, ejecutar la migración d ela base de datos
    add-migration MyFirstMigration -o migrations
