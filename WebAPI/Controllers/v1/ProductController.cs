@@ -1,10 +1,12 @@
-﻿using Application.features.products.commands.deleteProductCommand;
+﻿using Application.DTOs;
+using Application.features.products.commands.deleteProductCommand;
 using Application.features.products.commands.insertProductCommand;
 using Application.features.products.commands.updateProductCommand;
 using Application.features.products.queries.getProductAll;
 using Application.features.products.queries.getProductById;
 using Azure.Core;
 using Domain.entities;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -144,6 +146,12 @@ namespace WebAPI.Controllers.v1
             {
                 return BadRequest();
             }
+
+            InsertarEstadosEnCache();           
+            command.StatusName = RecuperarEstadoDeCache(command.StatusName);
+            command.Discount = ConsumirMockApiPorcentajesById(command.Id).Result;
+            command.FinalPrice = (command.Price * (100 - command.Discount)) / 100; ;
+
             return Ok(await Mediator.Send(command));
         }
 

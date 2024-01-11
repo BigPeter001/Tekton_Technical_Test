@@ -19,8 +19,8 @@ namespace Application.features.products.commands.updateProductCommand
     public class UpdateProductCommand : IRequest<Response<int>>
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
-        public required string StatusName { get; set; }
+        public  string Name { get; set; }
+        public  string StatusName { get; set; }
         public int Stock { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
@@ -34,17 +34,12 @@ namespace Application.features.products.commands.updateProductCommand
         private readonly IRepositoryAsync<Product> _repositoryAsync;
         //Inyección Mapeo automático
         private readonly IMapper _mapper;
-        //Inyección consumo PorcentajesApiClient mockapi
-        private readonly IHttpClientFactory _httpClientFactory;
-        //Inyección Memory cache estándar
-        private readonly IMemoryCache _memoryCache;
 
-        public UpdateProductCommandHandler(IRepositoryAsync<Product> repositoryAsync, IMapper mapper, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache)
+        public UpdateProductCommandHandler(IRepositoryAsync<Product> repositoryAsync, IMapper mapper)
         {
             _repositoryAsync = repositoryAsync;
             _mapper = mapper;
-            _httpClientFactory = httpClientFactory;
-            _memoryCache = memoryCache;
+
         }
 
         /// <summary>
@@ -65,70 +60,18 @@ namespace Application.features.products.commands.updateProductCommand
             }
             else 
             {
-                InsertarEstadosEnCache();
                 producto.Name = request.Name;
-                producto.StatusName = RecuperarEstadoDeCache(request.StatusName);
+                producto.StatusName = request.StatusName;
                 producto.Stock = request.Stock;
                 producto.Description = request.Description;
                 producto.Price = request.Price;
-                producto.Discount = ConsumirMockApiPorcentajesById(request.Id).Result;                
+                producto.Discount = request.Discount;                
                 producto.FinalPrice = (producto.Price * (100 - producto.Discount)) / 100; ;
 
                 await _repositoryAsync.UpdateAsync(producto);
 
                 return new Response<int>(producto.Id);
             }
-        }
-
-        private string RecuperarEstadoDeCache(string _statusKey)
-        {
-            string? statusName;
-            //Recuperar estado de la caché
-            if (_memoryCache.TryGetValue(_statusKey, out var resultado))
-            {
-                statusName = resultado.ToString();
-            }
-            else
-            {
-                statusName = "Cache no existe o finalizada";
-            }
-
-            return statusName;
-        }
-
-        /// <summary>
-        /// Este método inserta los estados a la caché.
-        /// </summary>
-        /// <param name=""></param>
-        /// <returns></returns>
-        private void InsertarEstadosEnCache()
-        {
-            // Almacenar en caché
-            _memoryCache.Set("1", "Active", new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Configurar la expiración
-            });
-            _memoryCache.Set("0", "Inactive", new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Configurar la expiración
-            });
-        }
-
-        private async Task<double> ConsumirMockApiPorcentajesById(int _id)
-        {
-            double descuento = 0;
-            //Consumo PorcentajesApiClient mockapi
-            var client = _httpClientFactory.CreateClient("PorcentajesApiClient");
-            var responsePorcentajesById = await client.GetAsync("porcentajesById/" + _id);
-
-            if (responsePorcentajesById.IsSuccessStatusCode)
-            {
-                var content = await responsePorcentajesById.Content.ReadAsStringAsync();
-                var porcentaje = JsonSerializer.Deserialize<Percentaje>(content);
-                descuento = Convert.ToDouble(porcentaje.porcentaje);
-            }
-            
-            return descuento;
         }
 
     }
