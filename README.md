@@ -1,4 +1,4 @@
-<H1<p>**Challenge para la empresa Tekton**</p></h2>
+<H1>**Challenge para la empresa Tekton**</h2>
 <p>Este challenge debe contener lo siguiente:</br>
 1.1. Crear un rest API en .net Core (última versión).</br>
 1.2. Documentar la API usando swagger.</br>
